@@ -1,18 +1,18 @@
-
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Scanner;
 
 public class WordleDicLoader {
 
-    public WordleDicLoader() throws IOException {
-        WebCrawler wc = new WebCrawler();
-        Map<String, Integer> words = wc.getWords();
+    private WebCrawler wc = new WebCrawler();
 
-        File f = new File("words.txt");
-        Scanner in = new Scanner(f);
+    public WordleDicLoader() throws IOException {
+    }
+
+    public void init() throws IOException {
+        System.out.println("Initializing word dataset...");
+
+        Map<String, Integer> words = wc.getWords();
 
         PrintWriter writer = new PrintWriter("words.txt", "UTF-8");
         words.forEach((k, v) -> writer.println(k));
@@ -21,9 +21,7 @@ public class WordleDicLoader {
         writer.close();
     }
 
-    public static void main(String[] args) throws IOException {
-        WordleDicLoader wdl = new WordleDicLoader();
-
+    public void getStats() {
+        wc.printStats();
     }
-
 }

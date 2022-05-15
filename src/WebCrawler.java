@@ -117,9 +117,4 @@ public class WebCrawler {
     public Map<String, Integer> getWords() {
         return words;
     }
-
-    public static void main(String[] args) throws IOException {
-        WebCrawler wc = new WebCrawler();
-        wc.printStats();
-    }
 }
