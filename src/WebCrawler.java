@@ -1,13 +1,14 @@
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class WebCrawler {
 
@@ -39,6 +40,8 @@ public class WebCrawler {
             Scanner scan = new Scanner(url.openStream());
             while (scan.hasNext()) {
                 String line = scan.nextLine();
+                stats(line);
+                line = line.replaceAll("[0-9]+", "");
                 Matcher match = pattern.matcher(line);
                 while (match.find()) {
                     String matched = match.group();
@@ -54,38 +57,29 @@ public class WebCrawler {
         }
     }
 
-    private void tokenize(String line) {
+    private void stats(String line) {
         String[] tokens = line.split(" ");
         // ArrayList<String> cleanTokens = new ArrayList<String>();
         // Map<String, Integer> cleanTokens = new HashMap<String, Integer>();
 
         for (String token : tokens) {
             // eliminate all non-letters
-            String cleanToken = token.replaceAll("[0-9]+|\\p{Punct}+|\\s+|[^\\x00-\\x7F]+", "");
+            String cleanToken = token.replaceAll("[0-9]+|\\p{Punct}+", "");
             cleanToken = cleanToken.toLowerCase();
 
-            // System.out.println(cleanToken);
+            // count total words (despite its length)
+            totalWords++;
 
-            if (cleanToken.length() > 0) {
-                totalWords++;
-            }
-
+            // count words with correct length
             if (cleanToken.length() == 5) {
-                if (words.get(cleanToken) == null) {
-                    words.put(cleanToken, 1);
-                } else {
-                    words.put(cleanToken, words.get(cleanToken) + 1);
-                }
                 totalWordsKept++;
             } else if (cleanToken.length() > 1) {
                 totalWrongLengthWords++;
             }
-
         }
     }
 
     public void printStats() {
-        // System.out.println("Word Freq:");
         // for (Map.Entry<String, Integer> entry : words.entrySet()) {
         // String key = entry.getKey();
         // Object val = entry.getValue();
@@ -106,23 +100,18 @@ public class WebCrawler {
         uniqueWords = words.keySet().size();
         System.out.println(uniqueWords);
 
-        ArrayList<String> keys = new ArrayList<>(words.keySet());
-        ArrayList<Integer> values = new ArrayList<>(words.values());
-        ArrayList<Integer> freqs = new ArrayList<>();
-        Collections.sort(values);
-        for (int i = values.size() - 1; i > values.size() - 21; i--) {
-            freqs.add(values.get(i));
-        }
-        for (int i = 0; i < freqs.size(); i++) {
-            Integer index;
-            for (Integer value : values) {
-                if (value == freqs.get(i)) { // wrong
-                    index = values.indexOf(value);
-                    System.out.print(keys.get(index) + " : ");
-                    System.out.println(value);
-                }
-            }
-        }
+        System.out.println("Top 20 most frequently occurring words");
+        words.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Collections.reverseOrder()))
+                .limit(20)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new))
+                .forEach((s, integer) -> System.out.println(String.format("%s : %s", s, integer)));
+
     }
 
     public Map<String, Integer> getWords() {
@@ -132,6 +121,5 @@ public class WebCrawler {
     public static void main(String[] args) throws IOException {
         WebCrawler wc = new WebCrawler();
         wc.printStats();
-
     }
 }
