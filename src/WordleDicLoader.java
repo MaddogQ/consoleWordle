@@ -15,7 +15,7 @@ public class WordleDicLoader {
         Scanner in = new Scanner(f);
 
         PrintWriter writer = new PrintWriter("words.txt", "UTF-8");
-        words.forEach((k, v) -> writer.println(k + " : " + v));
+        words.forEach((k, v) -> writer.println(k));
         // writer.println("The first line");
         // writer.println("The second line");
         writer.close();
